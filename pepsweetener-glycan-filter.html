@@ -1,0 +1,227 @@
+<!-- Imports polymer -->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
+<link rel="import" href="../iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../paper-slider/paper-slider.html">
+
+<!-- Defines element markup -->
+<dom-module id="pepsweetener-glycan-filter">
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    <style is="pepsweetener-glycan-filter-style">
+        :root {
+            height: 100%;
+        }
+
+        paper-header-panel {
+            margin-left: 36px;
+            margin-right: 36px;
+            min-width: 760px;
+        }
+
+        iron-icon[disabled]{
+            display: none;
+        }
+
+        .paper-header {
+            font-family: "Roboto";
+            height: 60px;
+            font-size: 20px;
+            line-height: 60px;
+            padding: 0 10px;
+            color: white;
+            transition: height 0.2s;
+            border-radius: 5px 5px 0 0;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            box-shadow: 5px 5px 6px -1px rgba(0, 0, 0, 0.4);
+        }
+
+        .toggle-span-label {
+            position: relative;
+            display: inline-block;
+            vertical-align: middle;
+            padding-left:  8px;
+            padding-top: 2px;
+            pointer-events: none;
+            font-family: 'Roboto', 'Noto', sans-serif;
+            min-width: 140px;
+        }
+
+        .singleRangeBox{
+            width: 300px;
+            margin: 10px 20px 10px 20px;
+        }
+
+        .boxTitle {
+            font-family: 'Roboto', 'Noto', sans-serif;
+            margin-left: 40px;
+            font-size: larger;
+        }
+
+        #glycanFilterPanel {
+            margin-top: 20px;
+        }
+
+        #glycanFilterHeader {
+            height: 40px;
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 40px;
+            border-bottom: none;
+            color: black;
+            background-color: whitesmoke;
+        }
+
+        #glycanFilterBox{
+            border: 1px solid black;
+            margin-left: 36px;
+            margin-right: 36px;
+            min-width: 758px;
+            border-radius: 0 0 5px 5px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            box-shadow: 5px 5px 6px -1px rgba(0, 0, 0, 0.4);
+        }
+
+        #rangeBox {
+            padding: 30px 20px 20px 20px;
+        }
+    </style>
+    <template>
+        <paper-header-panel id="glycanFilterPanel" class="blue" mode="standard">
+            <div id="glycanFilterHeader" class="paper-header">
+                Filter by glycan composition
+                <iron-icon id="expandIcon" icon="icons:clear" alt="reset" on-click="_reset"></iron-icon>
+                <iron-icon id="expandIcon" icon="icons:unfold-more" alt="unfold" on-click="_toggleGlycanFilter"></iron-icon>
+                <iron-icon id="foldIcon" icon="icons:unfold-less" alt="fold" on-click="_toggleGlycanFilter" disabled></iron-icon>
+            </div>
+        </paper-header-panel>
+        <iron-collapse id="glycanFilterBox" class="horizontal center-justified">
+            <div id="rangeBox" class="layout horizontal wrap">
+                <template id="rangeBoxTemplate" is="dom-repeat" items="{{monosaccharides}}">
+                <div class="singleRangeBox">
+                    <div class="layout horizontal">
+                        <paper-toggle-button id="{{item}}Toggle" checked on-change="_changeOfSlider">{{_getLabel(item)}} : </paper-toggle-button>
+                        <span id="{{item}}Label" class="toggle-span-label">More or equal to 0</span>
+                        <iron-localstorage id="{{item}}ToggleCache" name="{{item}}ToggleCache"></iron-localstorage>
+                    </div><br>
+                    <paper-slider id="{{item}}Range" pin snaps max="10" max-markers="10" step="1" on-change="_changeOfRange"></paper-slider>
+                    <iron-localstorage id="{{item}}RangeCache" name="{{item}}RangeCache"></iron-localstorage>
+                </div>
+                </template>
+            </div>
+        </iron-collapse>
+    </template>
+
+    <!-- Registers custom element -->
+    <script>
+        Polymer({
+            is: 'pepsweetener-glycan-filter',
+            properties: {
+                monosaccharides: {
+                    type: Array,
+                    value: ['Hex', 'HexNAc', 'dHex', 'NeuAc', 'NeuGc', 'Kdn', 'Pen', 'HexA', 'S']
+                },
+                labels: {
+                    type: Object,
+                    value: {
+                        'Hex': 'Hex',
+                        'HexNAc': 'HexNAc',
+                        'dHex': 'dHex',
+                        'NeuAc': 'NeuAc',
+                        'NeuGc': 'NeuGc',
+                        'Kdn': 'Kdn',
+                        'Pen': 'Pentose',
+                        'HexA': 'HexA',
+                        'S': 'Sulphate'
+                    }
+                },
+                filter: {
+                    type: Object,
+                    value: {},
+                    notify: true
+                }
+            },
+            attached: function () {
+                for (var monosaccharide of this.monosaccharides){
+                    this.$$("#"+monosaccharide+"Range").value = this.$$("#"+monosaccharide+"RangeCache").value;
+                    if (this.$$("#"+monosaccharide+"ToggleCache").value=='unchecked'){
+                        this.$$("#"+monosaccharide+"Toggle").removeAttribute('checked');
+                        this.$$("#"+monosaccharide+"Toggle").setAttribute('unchecked',true)
+                        this.$$("#"+monosaccharide+"Range").setAttribute('disabled',true);
+                    }else{
+                        this.$$("#"+monosaccharide+"Toggle").removeAttribute('unchecked');
+                        this.$$("#"+monosaccharide+"Toggle").setAttribute('checked',true);
+                        this.$$("#"+monosaccharide+"Label").innerHTML = "More or equal to "+ this.$$("#"+monosaccharide+"Range").value;
+                    }
+                }
+            },
+            _getLabel: function(monosaccharide) {
+                return this.labels[monosaccharide];
+            },
+            _toggleGlycanFilter: function () {
+                this.$.glycanFilterBox.toggle();
+                if(this.$.foldIcon.hasAttribute('disabled')){
+                    this.$.expandIcon.setAttribute('disabled', 'true');
+                    this.$.foldIcon.removeAttribute('disabled');
+                }else{
+                    this.$.foldIcon.setAttribute('disabled', 'true');
+                    this.$.expandIcon.removeAttribute('disabled');
+                }
+
+            },
+            _reset: function () {
+                var rangeBox = this.$.rangeBox;
+                var paperInputs = Array.prototype.slice.call(rangeBox.getElementsByTagName('paper-slider'));
+                var data = this;
+                paperInputs.forEach(function (item) {
+                    var rangeObject = {};
+                    var monosaccharideId = item.id.replace("Range","");
+                    rangeObject["minRange"] = 0;
+                    rangeObject["presence"] = true;
+                    data.filter[monosaccharideId] = rangeObject;
+                    data.$$("#"+monosaccharideId+"Toggle").setAttribute('checked',true);
+                    data.$$("#"+monosaccharideId+"ToggleCache").value = true;
+                    data.$$("#"+monosaccharideId+"Range").value = 0;
+                    data.$$("#"+monosaccharideId+"RangeCache").value = 0;
+                });
+                console.log(this.filter);
+            },
+            _changeOfSlider : function (event) {
+                var monosaccharide  = event.target.id.replace("Toggle","");
+                if(event.target.checked){
+                    this.$$("#"+monosaccharide+"ToggleCache").value = 'checked';
+                    this.$$("#"+monosaccharide+"Range").disabled  = false;
+                    this.$$("#"+monosaccharide+"Label").textContent  =
+                        "More or equal to "+ this.$$("#"+monosaccharide+"Range").value;
+                } else{
+                    this.$$("#"+monosaccharide+"ToggleCache").value = 'unchecked';
+                    this.$$("#"+monosaccharide+"Range").disabled  = true;
+                    this.$$("#"+monosaccharide+"Label").textContent  = "Not present";
+                }
+                this._createGlycanFilter();
+            },
+            _changeOfRange: function (event) {
+                var monosaccharide  = event.target.id.replace("Range","");
+                this.$$("#"+monosaccharide+"RangeCache").value  = +event.target.value;
+                this.$$("#"+monosaccharide+"Label").textContent  = "More or equal to "+event.target.value;
+                this._createGlycanFilter();
+            },
+            _createGlycanFilter: function () {
+                var rangeBox = this.$.rangeBox;
+                var paperInputs = Array.prototype.slice.call(rangeBox.getElementsByTagName('paper-slider'));
+                var data = this;
+                paperInputs.forEach(function (item) {
+                    var rangeObject = {};
+                    var monosaccharideId = item.id.replace("Range","");
+                    rangeObject["minRange"] = item.value;
+                    rangeObject["presence"] = Polymer.dom(rangeBox).querySelector("#"+monosaccharideId+"Toggle").checked;
+                    data.filter[monosaccharideId] = rangeObject;
+                });
+            }
+        });
+    </script>
+</dom-module>
