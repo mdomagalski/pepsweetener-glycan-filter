@@ -144,7 +144,22 @@
                     notify: true
                 }
             },
-            attached: function () {
+            _getLabel: function(monosaccharide) {
+                return this.labels[monosaccharide];
+            },
+            _toggleGlycanFilter: function () {
+                this._setTogglesAndRSliders();
+                this.$.glycanFilterBox.toggle();
+                if(this.$.foldIcon.hasAttribute('disabled')){
+                    this.$.expandIcon.setAttribute('disabled', 'true');
+                    this.$.foldIcon.removeAttribute('disabled');
+                }else{
+                    this.$.foldIcon.setAttribute('disabled', 'true');
+                    this.$.expandIcon.removeAttribute('disabled');
+                }
+
+            },
+            _setTogglesAndRSliders: function () {
                 for (var monosaccharide of this.monosaccharides){
                     this.$$("#"+monosaccharide+"Range").value = this.$$("#"+monosaccharide+"RangeCache").value;
                     if (this.$$("#"+monosaccharide+"ToggleCache").value=='unchecked'){
@@ -157,20 +172,6 @@
                         this.$$("#"+monosaccharide+"Label").innerHTML = "More or equal to "+ this.$$("#"+monosaccharide+"Range").value;
                     }
                 }
-            },
-            _getLabel: function(monosaccharide) {
-                return this.labels[monosaccharide];
-            },
-            _toggleGlycanFilter: function () {
-                this.$.glycanFilterBox.toggle();
-                if(this.$.foldIcon.hasAttribute('disabled')){
-                    this.$.expandIcon.setAttribute('disabled', 'true');
-                    this.$.foldIcon.removeAttribute('disabled');
-                }else{
-                    this.$.foldIcon.setAttribute('disabled', 'true');
-                    this.$.expandIcon.removeAttribute('disabled');
-                }
-
             },
             _reset: function () {
                 var rangeBox = this.$.rangeBox;
