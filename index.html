@@ -4,13 +4,23 @@
     <meta charset="UTF-8">
     <title>Pepsweetener-glycan-filter test</title>
 
-    <!-- Imports polyfill -->
-    <script src="../webcomponentsjs/webcomponents-lite.min.js"></script>
-
     <!-- Imports custom element -->
     <link rel="import" href="pepsweetener-glycan-filter.html">
 </head>
-<body>
+
+<!-- if needed onload polyfill is imported-->
+<body onload="(function() {
+        if ('registerElement' in document
+            && 'import' in document.createElement('link')
+            && 'content' in document.createElement('template')) {
+            // platform is good!
+        } else {
+            // polyfill the platform!
+            var e = document.createElement('script');
+            e.src = '../webcomponentsjs/webcomponents-lite.min.js';
+            document.body.appendChild(e);
+        }
+    })();">
 <!-- Runs custom element -->
 <pepsweetener-glycan-filter></pepsweetener-glycan-filter>
 </body>
