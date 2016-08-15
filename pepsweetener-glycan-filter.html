@@ -60,6 +60,10 @@
             margin: 10px 20px 10px 20px;
         }
 
+        #filterToggleButton {
+            min-width: 760px;
+        }
+
         #glycanFilterHeader {
             font-size: 16px;
             font-weight: 500;
@@ -87,7 +91,7 @@
     <template>
         <paper-header-panel id="glycanFilterPanel" class="blue" mode="seamed">
             <div id="glycanFilterHeader" class="paper-header">
-                <paper-button class="indigo" on-click="_toggleGlycanFilter" toggles raised>
+                <paper-button id="filterToggleButton" class="indigo" on-click="_toggleGlycanFilter" toggles raised>
                     <iron-icon id="expandIcon" icon="icons:chevron-right" alt="unfold" ></iron-icon>
                     <iron-icon id="foldIcon" icon="icons:expand-more" alt="fold" disabled></iron-icon>
                     Glycan composition filter
