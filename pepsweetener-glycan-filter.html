@@ -148,8 +148,7 @@
                 }
             },
             attached: function () {
-                this.async(function(){this._setTogglesAndRSliders()},1);
-                this._createGlycanFilter();
+                this.async(function(){this._setTogglesAndRSliders();this._createGlycanFilter();},1);
             },
             _getLabel: function(monosaccharide) {
                 return this.labels[monosaccharide];
