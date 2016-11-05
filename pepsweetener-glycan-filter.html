@@ -29,10 +29,18 @@
         paper-button.indigo {
             background-color: var(--paper-indigo-500);
             color: white;
-            width: 100%;
             --paper-button-raised-keyboard-focus: {
                 color: white !important;
             };
+        }
+
+        paper-button#filterToggleButton {
+            width: 100%;
+        }
+
+        paper-button#updateButton {
+            height: 50%;
+            margin: 15px 30px;
         }
 
         .paper-header {
@@ -112,6 +120,7 @@
                         <iron-localstorage id="{{item}}RangeCache" name="{{item}}RangeCache"></iron-localstorage>
                     </div>
                 </template>
+                <paper-button id="updateButton" class="indigo" on-tap="updateResults">update results</paper-button>
             </div>
         </iron-collapse>
     </template>
@@ -149,6 +158,9 @@
             },
             attached: function () {
                 this.async(function(){this._setTogglesAndRSliders();this._createGlycanFilter();},1);
+            },
+            updateResults: function(){
+                this.domHost.search();
             },
             _getLabel: function(monosaccharide) {
                 return this.labels[monosaccharide];
